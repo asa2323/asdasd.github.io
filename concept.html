@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeData Analytics | КОНЦЕПЦИЯ</title>
+    <style>
+        /* Экспериментальные стили в духе Lain */
+        :root {
+            --glitch-blue: #00f0ff;
+            --glitch-pink: #ff00f0;
+            --glitch-green: #00ff0d;
+            --dark-bg: #000010;
+            --terminal-text: #00ff41;
+            --error-red: #ff0033;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background-color: var(--dark-bg);
+            color: var(--terminal-text);
+            overflow-x: hidden;
+            line-height: 1.4;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Эффект сканирующих линий */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(
+                    rgba(0, 240, 255, 0.03) 50%, 
+                    transparent 50%
+                );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 100;
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0%); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* Глитч-эффект */
+        .glitch-effect {
+            position: relative;
+        }
+
+        .glitch-effect::before,
+        .glitch-effect::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        .glitch-effect::before {
+            color: var(--glitch-pink);
+            z-index: -1;
+            animation: glitch 3s infinite;
+        }
+
+        .glitch-effect::after {
+            color: var(--glitch-green);
+            z-index: -2;
+            animation: glitch 2s infinite reverse;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+
+        /* Основной контейнер */
+        .terminal {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            border: 1px solid var(--glitch-blue);
+            box-shadow: 
+                0 0 15px var(--glitch-blue),
+                inset 0 0 15px var(--glitch-blue);
+            position: relative;
+            background-color: rgba(0, 0, 16, 0.7);
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        /* Заголовок с глитч-эффектом */
+        .main-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            color: var(--glitch-blue);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        .main-title span {
+            display: block;
+            font-size: 1.2rem;
+            color: var(--terminal-text);
+            margin-top: 10px;
+            letter-spacing: 3px;
+        }
+
+        /* Навигация */
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 40px 0;
+        }
+
+        .nav-link {
+            color: var(--terminal-text);
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 1px solid var(--glitch-blue);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: var(--glitch-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--glitch-blue);
+        }
+
+        .nav-link.current {
+            background-color: var(--glitch-pink);
+            color: var(--dark-bg);
+            border-color: var(--glitch-pink);
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 240, 255, 0.4),
+                transparent
+            );
+            transition: all 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        /* Консольные блоки с концепциями */
+        .concept-console {
+            border: 1px solid var(--glitch-green);
+            padding: 20px;
+            margin: 30px 0;
+            position: relative;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .concept-console::before {
+            content: 'MODULE_' attr(data-id);
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: var(--dark-bg);
+            padding: 0 10px;
+            color: var(--glitch-green);
+            font-size: 0.9rem;
+        }
+
+        .concept-header {
+            color: var(--glitch-pink);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--glitch-blue);
+            padding-bottom: 10px;
+        }
+
+        .concept-content {
+            line-height: 1.7;
+        }
+
+        .concept-content p {
+            margin: 10px 0;
+        }
+
+        /* Анимация мигающего курсора */
+        .cursor {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Кнопка возврата */
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            color: var(--terminal-text);
+            text-decoration: none;
+            border: 1px solid var(--glitch-green);
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background-color: var(--glitch-green);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--glitch-green);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .terminal {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+
+    <div class="terminal">
+        <h1 class="main-title glitch-effect" data-text="TimeData Analytics">
+            TimeData Analytics
+            <span>концепция анализа исторических данных</span>
+        </h1>
+
+        <div class="nav-links">
+            <a href="/" class="nav-link">/ГЛАВНАЯ</a>
+            <a href="intro.html" class="nav-link">/О ПРОЕКТЕ</a>
+            <a href="concept.html" class="nav-link current">/КОНЦЕПЦИЯ</a>
+            <a href="#" class="nav-link">/ТАРИФЫ</a>
+            <a href="#" class="nav-link">/КОНТАКТЫ</a>
+        </div>
+
+        <div class="concept-console" data-id="01">
+            <div class="concept-header">АРХИВНЫЙ АНАЛИЗ</div>
+            <div class="concept-content">
+                <p>>> Доступ к миллионам сохраненных веб-страниц через Wayback Machine</p>
+                <p>>> Восстановление удаленного контента и измененных данных</p>
+                <p>>> Сравнение версий сайтов с течением времени</p>
+                <p>>> Визуализация изменений дизайна и структуры</p>
+                <p>STATUS: <span style="color: var(--glitch-green);">IMPLEMENTED</span> <span class="cursor">_</span></p>
+            </div>
+        </div>
+
+        <div class="concept-console" data-id="02">
+            <div class="concept-header">ИИ-АНАЛИТИКА</div>
+            <div class="concept-content">
+                <p>>> NLP анализ изменений контента и тональности</p>
+                <p>>> Компьютерное зрение для сравнения скриншотов</p>
+                <p>>> Выявление паттернов и аномалий в исторических данных</p>
+                <p>>> Прогнозирование трендов на основе архивов</p>
+                <p>STATUS: <span style="color: var(--error-red);">IN DEVELOPMENT</span></p>
+            </div>
+        </div>
+
+        <div class="concept-console" data-id="03">
+            <div class="concept-header">ТРЕНД-ТРЕКЕР</div>
+            <div class="concept-content">
+                <p>>> Отслеживание изменений цен на товары и услуги</p>
+                <p>>> Анализ эволюции SEO и маркетинговых стратегий</p>
+                <p>>> Сравнение активности в соцсетях за разные периоды</p>
+                <p>>> Визуализация исторических изменений в графиках</p>
+                <p>STATUS: <span style="color: var(--glitch-green);">IMPLEMENTED</span></p>
+            </div>
+        </div>
+
+        <div class="concept-console" data-id="04">
+            <div class="concept-header">МОНИТОРИНГ ИЗМЕНЕНИЙ</div>
+            <div class="concept-content">
+                <p>>> Уведомления о важных изменениях на отслеживаемых сайтах</p>
+                <p>>> Обнаружение удаленных страниц и контента</p>
+                <p>>> Автоматическое архивирование важных изменений</p>
+                <p>>> API для интеграции с другими системами</p>
+                <p>STATUS: <span style="color: var(--error-red);">PROTOTYPE</span> <span class="cursor">_</span></p>
+            </div>
+        </div>
+
+        <a href="/" class="back-link"><< НАЗАД К ГЛАВНОЙ</a>
+    </div>
+
+    <script>
+        // Анимация мигающих курсоров
+        const cursors = document.querySelectorAll('.cursor');
+        let cursorVisible = true;
+        
+        setInterval(() => {
+            cursorVisible = !cursorVisible;
+            cursors.forEach(cursor => {
+                cursor.style.opacity = cursorVisible ? '1' : '0';
+            });
+        }, 500);
+
+        // Случайные глитч-эффекты для консолей
+        const consoles = document.querySelectorAll('.concept-console');
+        
+        function glitchConsoles() {
+            consoles.forEach(console => {
+                if(Math.random() > 0.9) {
+                    const randomColor = Math.random() > 0.5 ? 
+                        'var(--glitch-pink)' : 'var(--glitch-blue)';
+                    console.style.borderColor = randomColor;
+                    console.style.boxShadow = `0 0 15px ${randomColor}`;
+                    
+                    setTimeout(() => {
+                        console.style.borderColor = 'var(--glitch-green)';
+                        console.style.boxShadow = 'none';
+                    }, 200);
+                }
+            });
+        }
+        
+        setInterval(glitchConsoles, 1500);
+
+        // Эффект набора текста для заголовка
+        const title = document.querySelector('.main-title');
+        const originalText = "TimeData Analytics";
+        let currentText = "";
+        let i = 0;
+        
+        function typeWriter() {
+            if (i < originalText.length) {
+                currentText += originalText.charAt(i);
+                title.textContent = currentText;
+                title.setAttribute('data-text', currentText);
+                i++;
+                setTimeout(typeWriter, Math.random() * 200 + 50);
+            }
+        }
+        
+        // Запускаем после загрузки
+        window.addEventListener('load', () => {
+            setTimeout(typeWriter, 1000);
+            
+            // Постепенное появление консолей
+            setTimeout(() => {
+                consoles.forEach((console, index) => {
+                    setTimeout(() => {
+                        console.style.opacity = '1';
+                        console.style.transform = 'translateY(0)';
+                    }, index * 300);
+                });
+            }, 1500);
+        });
+
+        // Изначально скрываем консоли для анимации
+        consoles.forEach(console => {
+            console.style.opacity = '0';
+            console.style.transform = 'translateY(20px)';
+            console.style.transition = 'all 0.5s ease';
+        });
+    </script>
+</body>
+</html>

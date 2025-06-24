@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeData Analytics | СВЯЗЬ</title>
+    <style>
+        /* Экспериментальные стили в духе Lain */
+        :root {
+            --glitch-blue: #00f0ff;
+            --glitch-pink: #ff00f0;
+            --glitch-green: #00ff0d;
+            --dark-bg: #000010;
+            --terminal-text: #00ff41;
+            --error-red: #ff0033;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background-color: var(--dark-bg);
+            color: var(--terminal-text);
+            overflow-x: hidden;
+            line-height: 1.4;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Эффект сканирующих линий */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(
+                    rgba(0, 240, 255, 0.03) 50%, 
+                    transparent 50%
+                );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 100;
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0%); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* Глитч-эффект */
+        .glitch-effect {
+            position: relative;
+        }
+
+        .glitch-effect::before,
+        .glitch-effect::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        .glitch-effect::before {
+            color: var(--glitch-pink);
+            z-index: -1;
+            animation: glitch 3s infinite;
+        }
+
+        .glitch-effect::after {
+            color: var(--glitch-green);
+            z-index: -2;
+            animation: glitch 2s infinite reverse;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+
+        /* Основной контейнер */
+        .terminal {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            border: 1px solid var(--glitch-blue);
+            box-shadow: 
+                0 0 15px var(--glitch-blue),
+                inset 0 0 15px var(--glitch-blue);
+            position: relative;
+            background-color: rgba(0, 0, 16, 0.7);
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        /* Заголовок с глитч-эффектом */
+        .main-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            color: var(--glitch-blue);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        .main-title span {
+            display: block;
+            font-size: 1.2rem;
+            color: var(--terminal-text);
+            margin-top: 10px;
+            letter-spacing: 3px;
+        }
+
+        /* Навигация */
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 40px 0;
+        }
+
+        .nav-link {
+            color: var(--terminal-text);
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 1px solid var(--glitch-blue);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: var(--glitch-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--glitch-blue);
+        }
+
+        .nav-link.current {
+            background-color: var(--glitch-pink);
+            color: var(--dark-bg);
+            border-color: var(--glitch-pink);
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 240, 255, 0.4),
+                transparent
+            );
+            transition: all 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        /* Блок контактов */
+        .contact-section {
+            border: 1px dashed var(--glitch-pink);
+            padding: 30px;
+            margin: 50px 0;
+            position: relative;
+        }
+
+        .contact-section::before {
+            content: '>>> CONTACT_PROTOCOL';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: var(--dark-bg);
+            padding: 0 10px;
+            color: var(--glitch-pink);
+            font-size: 0.9rem;
+        }
+
+        /* Карточки контактов */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .contact-card {
+            border: 1px solid var(--glitch-green);
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .contact-card:hover {
+            box-shadow: 0 0 20px var(--glitch-green);
+            transform: translateY(-5px);
+        }
+
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                transparent,
+                rgba(0, 255, 13, 0.1),
+                transparent
+            );
+        }
+
+        .contact-type {
+            color: var(--glitch-pink);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--glitch-green);
+            padding-bottom: 10px;
+        }
+
+        .contact-info {
+            line-height: 1.8;
+        }
+
+        .contact-info a {
+            color: var(--glitch-blue);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .contact-info a:hover {
+            text-shadow: 0 0 10px var(--glitch-blue);
+        }
+
+        /* Форма обратной связи */
+        .contact-form {
+            margin-top: 50px;
+            border-top: 1px dashed var(--glitch-blue);
+            padding-top: 30px;
+        }
+
+        .form-title {
+            color: var(--glitch-pink);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--glitch-green);
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glitch-blue);
+            color: var(--terminal-text);
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--glitch-pink);
+            box-shadow: 0 0 10px var(--glitch-pink);
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-submit {
+            display: block;
+            width: max-content;
+            margin: 30px auto 0;
+            padding: 15px 40px;
+            background-color: transparent;
+            color: var(--glitch-blue);
+            border: 1px solid var(--glitch-blue);
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-submit:hover {
+            background-color: var(--glitch-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 25px var(--glitch-blue);
+            letter-spacing: 5px;
+        }
+
+        /* Описание компании */
+        .company-description {
+            margin: 40px 0;
+            line-height: 1.8;
+            padding: 20px;
+            border-left: 3px solid var(--glitch-pink);
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Анимация мигающего курсора */
+        .cursor {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Кнопка возврата */
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            color: var(--terminal-text);
+            text-decoration: none;
+            border: 1px solid var(--glitch-green);
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background-color: var(--glitch-green);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--glitch-green);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .terminal {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+
+    <div class="terminal">
+        <h1 class="main-title glitch-effect" data-text="TimeData Analytics">
+            TimeData Analytics
+            <span>контактная информация</span>
+        </h1>
+
+        <div class="nav-links">
+            <a href="/" class="nav-link">/ГЛАВНАЯ</a>
+            <a href="intro.html" class="nav-link">/ИНТРО</a>
+            <a href="concept.html" class="nav-link">/КОНЦЕПЦИЯ</a>
+            <a href="download.html" class="nav-link">/СКАЧАТЬ</a>
+            <a href="contact.html" class="nav-link current">/СВЯЗЬ</a>
+        </div>
+
+        <div class="contact-section">
+            <div class="company-description">
+                <p>>> EXPERIMENTAL_DIVISION — исследовательское подразделение, специализирующееся на разработке экспериментальных исследовательских систем, стирающих границы между виртуальной и физической реальностью.</p>
+                <p>>> Наша миссия — исследование истории создания интернета и анализа прошлого</p>
+                <p>>> Основные направления: нейроинтерфейсы и ИИ-персонажи с адаптивным поведением.</p>
+                <p>>> STATUS: <span style="color: var(--glitch-green);">ACTIVE</span> <span class="cursor">_</span></p>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <h3 class="contact-type">ТЕЛЕФОН</h3>
+                    <div class="contact-info">
+                        <p>Техническая поддержка:</p>
+                        <p><a href="tel:+78005553535">+7 (800) 555-35-35</a></p>
+                        <p>Коммерческие вопросы:</p>
+                        <p><a href="tel:+74951234567">+7 (495) 123-45-67</a></p>
+                    </div>
+                </div>
+                
+                <div class="contact-card">
+                    <h3 class="contact-type">ЭЛЕКТРОННАЯ ПОЧТА</h3>
+                    <div class="contact-info">
+                        <p>Общие вопросы:</p>
+                        <p><a href="mailto:info@system-error.exp">info@system-error.exp</a></p>
+                        <p>Техподдержка:</p>
+                        <p><a href="mailto:support@system-error.exp">support@system-error.exp</a></p>
+                        <p>Сотрудничество:</p>
+                        <p><a href="mailto:partners@system-error.exp">partners@system-error.exp</a></p>
+                    </div>
+                </div>
+                
+                <div class="contact-card">
+                    <h3 class="contact-type">АДРЕС</h3>
+                    <div class="contact-info">
+                        <p>Физический офис:</p>
+                        <p>г. Москва, ул. Научная, д. 42, офис 404</p>
+                        <p>Часы работы:</p>
+                        <p>Пн-Пт: 10:00 - 18:00</p>
+                        <p>Сб-Вс: закрыто</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-form">
+                <h3 class="form-title">ФОРМА ОБРАТНОЙ СВЯЗИ</h3>
+                <form id="feedbackForm">
+                    <div class="form-group">
+                        <label for="name" class="form-label">ВАШ ИДЕНТИФИКАТОР</label>
+                        <input type="text" id="name" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">ЭЛЕКТРОННЫЙ АДРЕС</label>
+                        <input type="email" id="email" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject" class="form-label">ТЕМА СООБЩЕНИЯ</label>
+                        <input type="text" id="subject" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message" class="form-label">СОДЕРЖАНИЕ</label>
+                        <textarea id="message" class="form-textarea" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="form-submit">ОТПРАВИТЬ</button>
+                </form>
+            </div>
+        </div>
+
+        <a href="/" class="back-link"><< НАЗАД К ГЛАВНОЙ</a>
+    </div>
+
+    <script>
+        // Эффект набора текста для заголовка
+        const title = document.querySelector('.main-title');
+        const originalText = "TimeData Analytics";
+        let currentText = "";
+        let i = 0;
+        
+        function typeWriter() {
+            if (i < originalText.length) {
+                currentText += originalText.charAt(i);
+                title.textContent = currentText;
+                title.setAttribute('data-text', currentText);
+                i++;
+                setTimeout(typeWriter, Math.random() * 200 + 50);
+            }
+        }
+        
+        // Случайные глитч-эффекты
+        function randomGlitch() {
+            const elements = document.querySelectorAll('.contact-card, .nav-link');
+            elements.forEach(el => {
+                if(Math.random() > 0.9) {
+                    const randomColor = Math.random() > 0.5 ? 
+                        'var(--glitch-pink)' : 'var(--glitch-green)';
+                    el.style.boxShadow = `0 0 15px ${randomColor}`;
+                    setTimeout(() => {
+                        el.style.boxShadow = 'none';
+                    }, 200);
+                }
+            });
+        }
+        
+        // Обработка формы
+        const feedbackForm = document.getElementById('feedbackForm');
+        
+        feedbackForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Здесь должна быть логика отправки формы
+            alert('Сообщение отправлено в систему. Ожидайте ответа по электронной почте.');
+            feedbackForm.reset();
+            
+            // Эффект отправки
+            const submitButton = feedbackForm.querySelector('.form-submit');
+            submitButton.textContent = 'СООБЩЕНИЕ ОТПРАВЛЕНО';
+            submitButton.style.backgroundColor = 'var(--glitch-green)';
+            submitButton.style.color = 'var(--dark-bg)';
+            
+            setTimeout(() => {
+                submitButton.textContent = 'ОТПРАВИТЬ';
+                submitButton.style.backgroundColor = 'transparent';
+                submitButton.style.color = 'var(--glitch-blue)';
+            }, 3000);
+        });
+        
+        // Запускаем после загрузки
+        window.addEventListener('load', () => {
+            setTimeout(typeWriter, 1000);
+            setInterval(randomGlitch, 1000);
+            
+            // Анимация появления контактных карточек
+            const contactCards = document.querySelectorAll('.contact-card');
+            contactCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.5s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200 + 500);
+            });
+        });
+    </script>
+</body>
+</html>

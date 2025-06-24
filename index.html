@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeData Analytics | Анализ исторических веб-данных</title>
+    <style>
+        /* Экспериментальные стили в духе Lain */
+        :root {
+            --glitch-blue: #00f0ff;
+            --glitch-pink: #ff00f0;
+            --glitch-green: #00ff0d;
+            --dark-bg: #000010;
+            --terminal-text: #00ff41;
+            --error-red: #ff0033;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background-color: var(--dark-bg);
+            color: var(--terminal-text);
+            overflow-x: hidden;
+            line-height: 1.4;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Эффект сканирующих линий */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(
+                    rgba(0, 240, 255, 0.03) 50%, 
+                    transparent 50%
+                );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 100;
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0%); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* Глитч-эффект */
+        .glitch-effect {
+            position: relative;
+        }
+
+        .glitch-effect::before,
+        .glitch-effect::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        .glitch-effect::before {
+            color: var(--glitch-pink);
+            z-index: -1;
+            animation: glitch 3s infinite;
+        }
+
+        .glitch-effect::after {
+            color: var(--glitch-green);
+            z-index: -2;
+            animation: glitch 2s infinite reverse;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+
+        /* Основной контейнер */
+        .terminal {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            border: 1px solid var(--glitch-blue);
+            box-shadow: 
+                0 0 15px var(--glitch-blue),
+                inset 0 0 15px var(--glitch-blue);
+            position: relative;
+            background-color: rgba(0, 0, 16, 0.7);
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        /* Заголовок с глитч-эффектом */
+        .main-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            color: var(--glitch-blue);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        .main-title span {
+            display: block;
+            font-size: 1.2rem;
+            color: var(--terminal-text);
+            margin-top: 10px;
+            letter-spacing: 3px;
+        }
+
+        /* Навигация */
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 40px 0;
+        }
+
+        .nav-link {
+            color: var(--terminal-text);
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 1px solid var(--glitch-blue);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: var(--glitch-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--glitch-blue);
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 240, 255, 0.4),
+                transparent
+            );
+            transition: all 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        /* Блок с описанием игры */
+        .game-description {
+            border: 1px dashed var(--glitch-pink);
+            padding: 30px;
+            margin: 50px 0;
+            position: relative;
+        }
+
+        .game-description::before {
+            content: '>>> SYSTEM_ANALYSIS';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: var(--dark-bg);
+            padding: 0 10px;
+            color: var(--glitch-pink);
+            font-size: 0.9rem;
+        }
+
+        /* Блоки с фичами */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+        }
+
+        .feature-card {
+            border: 1px solid var(--glitch-green);
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 0 20px var(--glitch-green);
+            transform: translateY(-5px);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                transparent,
+                rgba(0, 255, 13, 0.1),
+                transparent
+            );
+        }
+
+        .feature-title {
+            color: var(--glitch-pink);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--glitch-green);
+            padding-bottom: 10px;
+        }
+
+        /* Консольные сообщения */
+        .console-log {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-left: 3px solid var(--error-red);
+            padding: 20px;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+
+        .console-log::before {
+            content: '> ';
+            position: absolute;
+            left: 10px;
+            top: 20px;
+            color: var(--error-red);
+        }
+
+        /* Кнопка CTA */
+        .cta-button {
+            display: block;
+            width: max-content;
+            margin: 50px auto;
+            padding: 15px 40px;
+            background-color: transparent;
+            color: var(--glitch-blue);
+            border: 1px solid var(--glitch-blue);
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button:hover {
+            background-color: var(--glitch-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 25px var(--glitch-blue);
+            letter-spacing: 5px;
+        }
+
+        /* Подвал */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--glitch-pink);
+            margin-top: 70px;
+            position: relative;
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            color: var(--terminal-text);
+            opacity: 0.7;
+        }
+
+        /* Анимация мигающего курсора */
+        .cursor {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .terminal {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+
+    <div class="terminal">
+        <h1 class="main-title glitch-effect" data-text="TimeData Analytics">
+            TimeData Analytics
+            <span>анализ исторических веб-данных</span>
+        </h1>
+
+        <div class="nav-links">
+            <a href="#" class="nav-link">/ГЛАВНАЯ</a>
+            <a href="#" class="nav-link">/ИНТРО</a>
+            <a href="#" class="nav-link">/КОНЦЕПЦИЯ</a>
+            <a href="#" class="nav-link">/СКАЧАТЬ</a>
+            <a href="#" class="nav-link">/СВЯЗЬ</a>
+        </div>
+
+        <div class="game-description">
+            <p>TimeData Analytics — приложение, которое использует архивные данные (например, из Wayback Machine) для анализа исторических изменений веб-страниц, контента и цифровых тенденций.</p>
+            <p>Мы собираем, анализируем и визуализируем данные из архивов интернета, чтобы помочь бизнесу, исследователям и обычным пользователям находить ценную информацию из прошлого.</p>
+        </div>
+
+        <div class="console-log">
+            <p>Initializing data crawler... <span class="cursor">_</span></p>
+            <p>Connecting to Wayback Machine API... [OK]</p>
+            <p>Loading historical datasets... [OK]</p>
+            <p>WARNING: Detected 427 page changes in target domain</p>
+            <p>System ready for temporal analysis</p>
+        </div>
+
+        <h2 style="text-align: center; color: var(--glitch-pink); margin: 50px 0 30px; text-transform: uppercase;">
+            Ключевые возможности
+        </h2>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3 class="feature-title">Архивный анализ</h3>
+                <p>Доступ к миллионам сохраненных веб-страниц через Wayback Machine и другие архивы.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">ИИ-аналитика</h3>
+                <p>NLP и компьютерное зрение для сравнения контента и визуальных изменений сайтов.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">Тренд-трекер</h3>
+                <p>Отслеживание изменений цен, контента и дизайна с течением времени.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">Мониторинг изменений</h3>
+                <p>Уведомления о важных изменениях или удалении отслеживаемых страниц.</p>
+            </div>
+        </div>
+
+        <button class="cta-button">
+            ПРОТЕСТИРОВАТЬ ДЕМО
+        </button>
+    </div>
+
+    <footer>
+        <p class="footer-text">
+            TimeData Analytics v1.0 | Все данные защищены и зашифрованы
+        </p>
+        <p class="footer-text">
+            Предупреждение: сервис может выявлять неожиданные изменения в цифровой истории
+        </p>
+        <p class="footer-text">
+            © 2023 TIMEDATA ANALYTICS
+        </p>
+    </footer>
+
+    <script>
+        // Динамическое изменение контента консоли
+        const consoleLog = document.querySelector('.console-log');
+        const messages = [
+            "Scanning domain history...",
+            "Found 12 major redesigns since 2015",
+            "WARNING: Price fluctuation detected in product category",
+            "Loading deleted content recovery module... [OK]",
+            "Historical sentiment analysis in progress",
+            "Synchronizing with web archives...",
+            "ERROR: Time gap detected in 2018 data"
+        ];
+        
+        function updateConsole() {
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            const newEntry = document.createElement('p');
+            newEntry.textContent = randomMessage;
+            consoleLog.appendChild(newEntry);
+            
+            // Ограничиваем количество сообщений
+            if(consoleLog.children.length > 8) {
+                consoleLog.removeChild(consoleLog.children[1]);
+            }
+        }
+        
+        setInterval(updateConsole, 3000);
+        
+        // Случайные глитч-эффекты
+        function randomGlitch() {
+            const elements = document.querySelectorAll('.feature-card, .nav-link');
+            elements.forEach(el => {
+                if(Math.random() > 0.8) {
+                    el.style.boxShadow = `0 0 15px ${Math.random() > 0.5 ? 'var(--glitch-pink)' : 'var(--glitch-green)'}`;
+                    setTimeout(() => {
+                        el.style.boxShadow = 'none';
+                    }, 200);
+                }
+            });
+        }
+        
+        setInterval(randomGlitch, 1000);
+        
+        // Эффект набора текста для заголовка
+        const title = document.querySelector('.main-title');
+        const originalText = "TimeData Analytics";
+        let currentText = "";
+        let i = 0;
+        
+        function typeWriter() {
+            if (i < originalText.length) {
+                currentText += originalText.charAt(i);
+                title.textContent = currentText;
+                title.setAttribute('data-text', currentText);
+                i++;
+                setTimeout(typeWriter, Math.random() * 200 + 50);
+            }
+        }
+        
+        // Запускаем после загрузки
+        window.addEventListener('load', () => {
+            setTimeout(typeWriter, 1000);
+        });
+    </script>
+</body>
+</html>
